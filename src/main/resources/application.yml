@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: payment-service
+  datasource:
+    url: jdbc:h2:mem:payment-service
+    driverClassName: org.h2.Driver
+    username: sa
+    password: password
+  h2:
+    console:
+      enabled: true
+      path: /h2
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+app:
+  flutter-config:
+    public-key: FLWPUBK_TEST-4670fa80dd2d31a3095109d724d42419-X
+    secret-key: FLWSECK_TEST-96e9407bd83ec64ecef19f781a78b18f-X
+    init-url: https://api.flutterwave.com/v3/payments
+    verify-url: https://api.flutterwave.com/v3/transactions
+    redirect-url: http://localhost:8080/api/payment/make-payment
