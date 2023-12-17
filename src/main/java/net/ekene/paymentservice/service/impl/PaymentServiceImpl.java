@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.ekene.paymentservice.config.AppConfig;
+import net.ekene.paymentservice.exception.UserNotVerifiedException;
 import net.ekene.paymentservice.model.UserDetails;
 import net.ekene.paymentservice.payload.Customer;
 import net.ekene.paymentservice.payload.PaymentRequest;
@@ -33,19 +34,16 @@ public class PaymentServiceImpl implements PaymentService {
     private final UserDetailsRepository userDetailsRepository;
     private final RestTemplate restTemplate;
     private final AppConfig appConfig;
-
     private final ObjectMapper objectMapper;
 
 
+    //Initialize payment from flutterwave init url
     @Override
     public Map<String, Object> initializePayment(PaymentRequest paymentRequest) {
-        log.info("PAyload   --- {}", paymentRequest);
+        log.info("Payload   --- {}", paymentRequest);
 
-        UserDetails user = userDetailsRepository.findByEmailIgnoreCase(paymentRequest.getEmail()).orElseThrow(() -> new RuntimeException("User not found!"));
+        UserDetails user = userDetailsRepository.findByEmailIgnoreCase(paymentRequest.getEmail()).orElseThrow(() -> new UserNotVerifiedException("User not found!"));
         String url = appConfig.getFlutterConfig().getInitUrl();
-
-        log.info("init url  --- {}", url);
-
         HttpMethod httpMethod = HttpMethod.POST;
         String txRef = RandomStringUtils.randomAlphabetic(7);
         Map<String, Object> payload = new HashMap<>();
@@ -54,16 +52,12 @@ public class PaymentServiceImpl implements PaymentService {
         payload.put("currency", paymentRequest.getCurrency());
         payload.put("redirect_url", appConfig.getFlutterConfig().getRedirectUrl());
         payload.put("customer", new Customer(user.getFirstName(),
-                user.getEmail(), "0000001000"));
+                user.getEmail(), user.getMobile()));
 
         log.info("Mapped payload  --- {}", payload);
 
-
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.setBearerAuth(appConfig.getFlutterConfig().getSecretKey());
-        log.info("Secret key payload  --- {}", appConfig.getFlutterConfig().getSecretKey());
-
-
         httpHeaders.setContentType(MediaType.APPLICATION_JSON);
         ParameterizedTypeReference<Map<String, Object>> typeRef = new ParameterizedTypeReference<>() {
         };
@@ -71,10 +65,12 @@ public class PaymentServiceImpl implements PaymentService {
         RequestEntity<?> requestEntity = new RequestEntity<>(payload, httpHeaders, httpMethod, uri);
         ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
                 requestEntity, typeRef);
-        System.out.println("Response from payment Service IMPL " + response);
+
+        log.info("Returned Response obj --- {}",  response);
         return response.getBody();
     }
 
+    //Verify payment from flutterwave verify url
     @Override
     public PaymentReturnResponse verifyTransaction(int transactionId) {
         String url = appConfig.getFlutterConfig().getVerifyUrl() + "/" + transactionId + "/verify";
@@ -89,27 +85,23 @@ public class PaymentServiceImpl implements PaymentService {
         RequestEntity<?> requestEntity = new RequestEntity<>(httpHeaders, httpMethod, uri);
         ResponseEntity<String> response = restTemplate.exchange(requestEntity, typeRef);
 
-        log.info("REsponse Body after VERIFIFICATION --- {}", getDecodedResponse(Objects.requireNonNull(response.getBody())));
+        log.info("Response Body after VERIFICATION --- {}", getDecodedResponse(Objects.requireNonNull(response.getBody())));
 
         PaymentReturnResponse returnResponse = getObjectFromJson(getDecodedResponse(Objects.requireNonNull(response.getBody())), PaymentReturnResponse.class);
-//        System.out.println("Response from payment Service IMPL " + response);
-//        restTemplate.postForObject(uri, response.getBody(), PaymentInitResponse.class);
-        paymentDetailsService.savePaymentDetails(returnResponse.getData(), "PAYMENT");
-        System.out.println(returnResponse);
+
+        paymentDetailsService.savePaymentDetails(returnResponse.getData());
 
         log.info("RETURN RESPONSE ----- {}", returnResponse);
         return returnResponse;
     }
 
-
-    protected String getDecodedResponse(String response) {
+    private String getDecodedResponse(String response) {
         String decodedResponse = response;
         if (!response.startsWith("{") && !response.startsWith("[")) {
             decodedResponse = new String(Base64.getDecoder().decode(response));
         }
         return decodedResponse;
     }
-
 
     private <T> T getObjectFromJson(String json, Class<T> clazz) throws IllegalStateException {
         try {

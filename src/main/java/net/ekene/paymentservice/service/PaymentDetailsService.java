@@ -5,7 +5,7 @@ import net.ekene.paymentservice.response.payment.PaymentData;
 import org.springframework.data.domain.Page;
 
 public interface PaymentDetailsService {
-    void savePaymentDetails(PaymentData paymentData, String desc);
+    void savePaymentDetails(PaymentData paymentData);
 
     Page<PaymentDetails> getPayment(int page);
 }

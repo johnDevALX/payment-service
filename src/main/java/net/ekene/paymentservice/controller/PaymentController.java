@@ -25,7 +25,7 @@ public class PaymentController extends BaseController {
 
     @GetMapping("verify")
     public ResponseEntity<?> verifyPayment(@RequestParam int transactionId){
-        return getResponse(HttpStatus.OK, "Success!", paymentService.verifyTransaction(transactionId));
+        return getResponse(HttpStatus.OK, "Verified!", paymentService.verifyTransaction(transactionId));
     }
 
     @GetMapping("get-payment")
@@ -33,6 +33,7 @@ public class PaymentController extends BaseController {
         return getResponse(HttpStatus.OK, "Retrieved!", paymentDetailsService.getPayment(page));
     }
 
+    // Redirect URL after making payment from flutterwave!
     @GetMapping("make-payment")
     public String verifyPayment(@RequestParam String status, String tx_ref, int transaction_id){
         return "test the transaction id on postman";

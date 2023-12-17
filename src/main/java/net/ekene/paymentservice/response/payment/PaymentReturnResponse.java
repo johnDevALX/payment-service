@@ -14,5 +14,4 @@ import java.io.Serializable;
 @ToString
 public class PaymentReturnResponse implements Serializable {
     private PaymentData data;
-//    private List<Map<String, Object>> data;
 }

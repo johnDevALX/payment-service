@@ -1,7 +1,8 @@
 package net.ekene.paymentservice.model;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.*;
 import net.ekene.paymentservice.util.BaseEntity;
 
@@ -17,7 +18,7 @@ public class PaymentDetails extends BaseEntity {
     private String processor_response;
     private String payment_type;
     private double amount_settled;
-    private String payment_description;
-    private String email;
-    private String name;
+    @ManyToOne
+    @JoinColumn(name = "user_details_id", referencedColumnName = "id")
+    private UserDetails userDetails;
 }
