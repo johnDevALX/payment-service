@@ -17,13 +17,13 @@ public class UserService {
     private final UserDetailsRepository userDetailsRepository;
     private final PaymentDetailsRepository paymentDetailsRepository;
 
-    @PostConstruct
+   @PostConstruct
    public void addUsers (){
        UserDetails userDetails = new UserDetails("ekene", "Loy", "ekenevics@gmail.com", "00000");
        UserDetails userDetails1 = new UserDetails("jane", "doe", "jane@gmail.com", "00000");
        UserDetails userDetails2 = new UserDetails("john", "bee", "john@gmail.com", "00000");
        UserDetails userDetails3 = new UserDetails("new", "old", "new@gmail.com", "00000");
-       UserDetails userDetails4 = new UserDetails("Mi_REY", "riri", "okonkwovivi25@gmail.com", "00000");
+       UserDetails userDetails4 = new UserDetails("vivian", "rita", "okonkwovivi25@gmail.com", "00000");
        UserDetails userDetails5 = new UserDetails("Vincent", "snitch", "enwerevincent@gmail.com", "00000");
        List<UserDetails> addAll = Arrays.asList(userDetails, userDetails1, userDetails2, userDetails3, userDetails4, userDetails5);
        userDetailsRepository.saveAll(addAll);

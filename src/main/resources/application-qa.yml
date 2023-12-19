@@ -1,0 +1,4 @@
+server:
+  port: 8080
+
+# specify other configurations for QA environment

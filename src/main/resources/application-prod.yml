@@ -1,0 +1,4 @@
+server:
+  port: 8090
+
+# specify other configurations for production environment

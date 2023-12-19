@@ -3,6 +3,7 @@ package net.ekene.paymentservice.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.ekene.paymentservice.payload.PaymentRequest;
+import net.ekene.paymentservice.payload.SizePager;
 import net.ekene.paymentservice.service.PaymentDetailsService;
 import net.ekene.paymentservice.service.PaymentService;
 import net.ekene.paymentservice.util.BaseController;
@@ -29,8 +30,8 @@ public class PaymentController extends BaseController {
     }
 
     @GetMapping("get-payment")
-    public ResponseEntity<?> getPayments(@RequestParam int page){
-        return getResponse(HttpStatus.OK, "Retrieved!", paymentDetailsService.getPayment(page));
+    public ResponseEntity<?> getPayments(SizePager sizePager){
+        return getResponse(HttpStatus.OK, "Retrieved!", paymentDetailsService.getPayment(sizePager));
     }
 
     // Redirect URL after making payment from flutterwave!

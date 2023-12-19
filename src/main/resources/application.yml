@@ -1,4 +1,4 @@
-port: 8070
+port: 8000
 
 server:
   port: ${port}
@@ -22,8 +22,8 @@ spring:
 
 app:
   flutter-config:
-    public-key: ${PUB_KEY}
-    secret-key: ${SECRET_KEY}
+    public-key: ${PUB_KEY:FLWPUBK_TEST-4670fa80dd2d31a3095109d724d42419-X}
+    secret-key: ${SECRET_KEY:FLWSECK_TEST-96e9407bd83ec64ecef19f781a78b18f-X}
     init-url: https://api.flutterwave.com/v3/payments
     verify-url: https://api.flutterwave.com/v3/transactions
     redirect-url: http://localhost:${port}/api/payment/make-payment

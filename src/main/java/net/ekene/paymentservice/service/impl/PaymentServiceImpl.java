@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.ekene.paymentservice.config.AppConfig;
-import net.ekene.paymentservice.exception.UserNotVerifiedException;
+import net.ekene.paymentservice.exception.UserNotFoundException;
 import net.ekene.paymentservice.model.UserDetails;
 import net.ekene.paymentservice.payload.Customer;
 import net.ekene.paymentservice.payload.PaymentRequest;
@@ -42,7 +42,7 @@ public class PaymentServiceImpl implements PaymentService {
     public Map<String, Object> initializePayment(PaymentRequest paymentRequest) {
         log.info("Payload   --- {}", paymentRequest);
 
-        UserDetails user = userDetailsRepository.findByEmailIgnoreCase(paymentRequest.getEmail()).orElseThrow(() -> new UserNotVerifiedException("User not found!"));
+        UserDetails user = userDetailsRepository.findByEmailIgnoreCase(paymentRequest.getEmail()).orElseThrow(() -> new UserNotFoundException("User not found!"));
         String url = appConfig.getFlutterConfig().getInitUrl();
         HttpMethod httpMethod = HttpMethod.POST;
         String txRef = RandomStringUtils.randomAlphabetic(7);
@@ -66,7 +66,6 @@ public class PaymentServiceImpl implements PaymentService {
         ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
                 requestEntity, typeRef);
 
-        log.info("Returned Response obj --- {}",  response);
         return response.getBody();
     }
 
@@ -85,13 +84,10 @@ public class PaymentServiceImpl implements PaymentService {
         RequestEntity<?> requestEntity = new RequestEntity<>(httpHeaders, httpMethod, uri);
         ResponseEntity<String> response = restTemplate.exchange(requestEntity, typeRef);
 
-        log.info("Response Body after VERIFICATION --- {}", getDecodedResponse(Objects.requireNonNull(response.getBody())));
-
         PaymentReturnResponse returnResponse = getObjectFromJson(getDecodedResponse(Objects.requireNonNull(response.getBody())), PaymentReturnResponse.class);
+        log.info("RETURN RESPONSE ----- {}", returnResponse);
 
         paymentDetailsService.savePaymentDetails(returnResponse.getData());
-
-        log.info("RETURN RESPONSE ----- {}", returnResponse);
         return returnResponse;
     }
 
